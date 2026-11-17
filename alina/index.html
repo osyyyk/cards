@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* ---------- ТЕМЫ ---------- */
   :root{
     --bg1:#1a1220; --bg2:#2b1b2e;
     --paper:#fffaf3; --ink:#2a1f2b;
@@ -41,34 +40,40 @@
     color:var(--ink);
     background:radial-gradient(1200px 600px at 20% 0%, var(--bg2), var(--bg1) 60%);
     min-height:100dvh;display:grid;place-items:center;padding:24px;
-    overflow:hidden;
-    transition:background .6s ease, color .6s ease;
+    overflow:hidden;transition:background .6s ease, color .6s ease;
   }
   body::before{
     content:"";position:fixed;inset:-20%;
     background:
       radial-gradient(400px 400px at 15% 20%, var(--glow1), transparent 70%),
       radial-gradient(500px 500px at 85% 80%, var(--glow2), transparent 70%);
-    filter:blur(20px);z-index:0;pointer-events:none;
-    transition:background .6s ease;
+    filter:blur(20px);z-index:0;pointer-events:none;transition:background .6s ease;
   }
 
-  .stage{position:relative;z-index:1;width:100%;max-width:520px;perspective:1600px}
+  /* ---------- СЦЕНА: фиксированная высота, всё внутри ---------- */
+  .stage{
+    position:relative;z-index:1;
+    width:100%;max-width:440px;
+    height:560px;                 /* стабильная высота */
+    perspective:1600px;
+    display:grid;place-items:center;
+  }
 
   /* ---------- КОНВЕРТ ---------- */
   .envelope{
-    position:relative;width:100%;aspect-ratio:4/3;cursor:pointer;
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    cursor:pointer;
     transform-style:preserve-3d;
-    transition:transform 1s cubic-bezier(.2,.8,.2,1), opacity .6s ease;
+    transition:transform .9s cubic-bezier(.2,.8,.2,1), opacity .5s ease;
     animation:floaty 5s ease-in-out infinite;
   }
   @keyframes floaty{
-    0%,100%{transform:translateY(0) rotateZ(-.5deg)}
-    50%{transform:translateY(-10px) rotateZ(.5deg)}
+    0%,100%{transform:translateY(0) rotateZ(-.4deg)}
+    50%{transform:translateY(-8px) rotateZ(.4deg)}
   }
 
-  /* задняя часть конверта (карман) */
-  .env-back{
+  .env-body{
     position:absolute;inset:0;
     background:linear-gradient(160deg,var(--env1),var(--env3));
     border-radius:22px;
@@ -77,36 +82,34 @@
                inset 0 1px 0 rgba(255,255,255,.6);
     overflow:hidden;
   }
-  /* «карман» — треугольник снизу */
-  .env-back::after{
+  .env-body::after{
     content:"";position:absolute;inset:0;
     background:linear-gradient(180deg,transparent 55%, var(--env2));
     clip-path:polygon(0 100%,50% 55%,100% 100%);
   }
 
-  /* клапан — отгибается в 3D */
+  /* клапан */
   .flap{
     position:absolute;left:0;right:0;top:0;height:62%;
     transform-origin:top center;
     transform-style:preserve-3d;
-    transition:transform .9s cubic-bezier(.6,-0.2,.3,1.3);
+    transition:transform .8s cubic-bezier(.4,0,.2,1);
     z-index:4;
   }
-  .flap-face{
-    position:absolute;inset:0;
-    background:linear-gradient(180deg,var(--env1),var(--env2));
-    clip-path:polygon(0 0,100% 0,50% 100%);
-    border-radius:22px 22px 0 0;
-    box-shadow:inset 0 -12px 24px -12px rgba(0,0,0,.15);
-    backface-visibility:hidden;
-  }
+  .flap-face,
   .flap-back{
     position:absolute;inset:0;
-    background:linear-gradient(180deg,var(--env2),var(--env3));
     clip-path:polygon(0 0,100% 0,50% 100%);
     border-radius:22px 22px 0 0;
-    transform:rotateX(180deg);
     backface-visibility:hidden;
+  }
+  .flap-face{
+    background:linear-gradient(180deg,var(--env1),var(--env2));
+    box-shadow:inset 0 -12px 24px -12px rgba(0,0,0,.15);
+  }
+  .flap-back{
+    background:linear-gradient(180deg,var(--env2),var(--env3));
+    transform:rotateX(180deg);
     box-shadow:inset 0 12px 24px -12px rgba(0,0,0,.2);
   }
 
@@ -119,12 +122,13 @@
     box-shadow:0 12px 24px -8px rgba(169,79,104,.9),
                inset 0 -4px 8px rgba(0,0,0,.2),
                inset 0 4px 6px rgba(255,255,255,.35);
-    z-index:6;animation:pulse 2.4s ease-in-out infinite;
+    z-index:6;
+    animation:pulse 2.4s ease-in-out infinite;
     transition:opacity .3s ease, transform .3s ease;
   }
   @keyframes pulse{
     0%,100%{transform:translate(-50%,-50%) scale(1)}
-    50%{transform:translate(-50%,-50%) scale(1.07)}
+    50%{transform:translate(-50%,-50%) scale(1.06)}
   }
   .seal svg{width:28px;height:28px}
 
@@ -136,22 +140,22 @@
     transition:opacity .3s ease;
   }
   @keyframes wobble{
-    0%,100%{transform:rotate(-2deg) translateY(0)}
-    50%{transform:rotate(2deg) translateY(-4px)}
+    0%,100%{transform:rotate(-2deg)}
+    50%{transform:rotate(2deg)}
   }
   .open-hint::after{content:" ✦";color:var(--accent);animation:blink 1.4s steps(1) infinite}
   @keyframes blink{50%{opacity:.2}}
 
   /* ---------- ОТКРЫТКА ---------- */
   .card{
-    position:absolute;left:50%;top:50%;
-    width:100%;
-    transform:translate(-50%,-50%) translateY(40px) scale(.9);
+    position:absolute;inset:0;
     background:var(--paper);border-radius:24px;
     padding:16px 16px 22px;
     box-shadow:0 40px 80px -30px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.8);
-    opacity:0;pointer-events:none;
-    transition:opacity .5s ease, transform .8s cubic-bezier(.2,.8,.2,1);
+    opacity:0;
+    transform:translateY(30px) scale(.95);
+    pointer-events:none;
+    transition:opacity .5s ease, transform .7s cubic-bezier(.2,.8,.2,1);
     overflow:hidden;z-index:2;
   }
   .card::after{
@@ -159,38 +163,38 @@
     border:1px solid var(--border);border-radius:18px;pointer-events:none;
   }
   .photo{
-    width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:16px;
-    display:block;background:#eee;
+    width:100%;height:52%;
+    object-fit:cover;border-radius:16px;display:block;background:#eee;
   }
   .names{
-    font-family:'Caveat',cursive;font-size:clamp(30px,7vw,44px);
-    line-height:1.05;text-align:center;margin:16px 0 2px;
+    font-family:'Caveat',cursive;font-size:clamp(28px,6.4vw,40px);
+    line-height:1.05;text-align:center;margin:14px 0 2px;
   }
   .names span{color:var(--accent)}
 
   .start{
-    text-align:center;margin:6px 0 14px;padding:12px 10px;
+    text-align:center;margin:6px 0 12px;padding:10px 10px;
     background:linear-gradient(180deg,var(--glow1),transparent);
     border-radius:14px;border:1px dashed var(--border);
   }
   .start-label{
     font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-    color:var(--accent);font-weight:600;margin-bottom:4px;
+    color:var(--accent);font-weight:600;margin-bottom:3px;
   }
   .start-date{
-    font-family:'Caveat',cursive;font-size:clamp(22px,5.5vw,28px);
+    font-family:'Caveat',cursive;font-size:clamp(20px,5vw,26px);
     color:var(--ink);line-height:1.1;
   }
-  .start-days{margin-top:6px;font-size:13px;color:var(--muted)}
+  .start-days{margin-top:4px;font-size:13px;color:var(--muted)}
   .start-days b{color:var(--accent);font-weight:600;font-size:15px}
 
   .phrase{
-    text-align:center;font-size:14.5px;line-height:1.55;
+    text-align:center;font-size:14px;line-height:1.5;
     color:var(--ink);opacity:.85;padding:0 8px;
   }
   .divider{
     display:flex;align-items:center;gap:10px;
-    margin:14px auto 12px;max-width:200px;color:var(--accent);
+    margin:12px auto 10px;max-width:200px;color:var(--accent);
   }
   .divider::before,.divider::after{
     content:"";flex:1;height:1px;
@@ -198,10 +202,9 @@
   }
   .divider svg{width:15px;height:15px;flex:none}
 
-  /* ---------- СОСТОЯНИЕ «ОТКРЫТО» ---------- */
+  /* ---------- ОТКРЫТО ---------- */
   .stage.opened .flap{
     transform:rotateX(180deg);
-    transition:transform .7s cubic-bezier(.4,0,.2,1);
   }
   .stage.opened .seal{
     opacity:0;transform:translate(-50%,-50%) scale(.4);
@@ -210,27 +213,25 @@
   .stage.opened .open-hint{opacity:0}
   .stage.opened .envelope{
     animation:none;
-    transform:translateY(30px) scale(.96);
+    transform:translateY(40px) scale(.94);
     opacity:0;
     pointer-events:none;
-    transition:transform 1s cubic-bezier(.2,.8,.2,1) .25s, opacity .6s ease .55s;
+    transition:transform .9s cubic-bezier(.2,.8,.2,1) .2s, opacity .5s ease .5s;
   }
   .stage.opened .card{
     opacity:1;pointer-events:auto;
-    transform:translate(-50%,-50%) translateY(-50%) scale(1);
-    transition:opacity .6s ease .55s, transform .9s cubic-bezier(.2,.8,.2,1) .55s;
+    transform:none;
+    transition:opacity .5s ease .55s, transform .8s cubic-bezier(.2,.8,.2,1) .55s;
   }
 
-  /* поэтапное появление */
-  .card .reveal{opacity:0;transform:translateY(12px);transition:opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1)}
+  .card .reveal{opacity:0;transform:translateY(10px);transition:opacity .5s ease, transform .5s ease}
   .stage.opened .card .reveal{opacity:1;transform:none}
-  .stage.opened .card .r1{transition-delay:1.05s}
-  .stage.opened .card .r2{transition-delay:1.25s}
-  .stage.opened .card .r3{transition-delay:1.45s}
-  .stage.opened .card .r4{transition-delay:1.65s}
-  .stage.opened .card .r5{transition-delay:1.85s}
+  .stage.opened .card .r1{transition-delay:1.0s}
+  .stage.opened .card .r2{transition-delay:1.15s}
+  .stage.opened .card .r3{transition-delay:1.3s}
+  .stage.opened .card .r4{transition-delay:1.45s}
+  .stage.opened .card .r5{transition-delay:1.6s}
 
-  /* переключатель темы */
   .theme-btn{
     position:fixed;top:16px;right:16px;z-index:10;
     width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;
@@ -240,9 +241,7 @@
     transition:background .3s ease, transform .2s ease;
     box-shadow:0 8px 20px -8px rgba(0,0,0,.4);
   }
-  html[data-theme="pastel"] .theme-btn{
-    background:rgba(0,0,0,.06);color:#8a4b60;
-  }
+  html[data-theme="pastel"] .theme-btn{background:rgba(0,0,0,.06);color:#8a4b60}
   .theme-btn:hover{transform:scale(1.06)}
 
   .footer{
@@ -250,6 +249,9 @@
     color:var(--footer);font-size:12px;letter-spacing:.05em;z-index:1;
   }
 
+  @media (max-width:480px){
+    .stage{height:min(560px, 86vh)}
+  }
   @media (prefers-reduced-motion: reduce){
     .envelope,.seal,.open-hint,.open-hint::after{animation:none}
   }
@@ -263,7 +265,7 @@
 
   <!-- КОНВЕРТ -->
   <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Открыть открытку">
-    <div class="env-back"></div>
+    <div class="env-body"></div>
     <div class="flap" aria-hidden="true">
       <div class="flap-face"></div>
       <div class="flap-back"></div>
@@ -297,19 +299,16 @@
 <p class="footer">сделано с любовью · отсканируй и улыбнись</p>
 
 <script>
-  /* ---------- ТЕМА ---------- */
-  const themeBtn = document.getElementById('themeBtn');
   const html = document.documentElement;
+  const themeBtn = document.getElementById('themeBtn');
   html.setAttribute('data-theme','dark');
 
   themeBtn.addEventListener('click', () => {
-    const cur = html.getAttribute('data-theme');
-    const next = cur === 'dark' ? 'pastel' : 'dark';
+    const next = html.getAttribute('data-theme') === 'dark' ? 'pastel' : 'dark';
     html.setAttribute('data-theme', next);
     themeBtn.textContent = next === 'dark' ? '☀' : '☾';
   });
 
-  /* ---------- ОТКРЫТИЕ ---------- */
   const stage = document.getElementById('stage');
   const envelope = document.getElementById('envelope');
   const card = document.getElementById('card');
@@ -324,8 +323,7 @@
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCard(); }
   });
 
-  /* ---------- СЧЁТЧИК ---------- */
-  // МЕНЯЙ ТОЛЬКО ЭТУ ДАТУ (YYYY, MM-1, DD). Февраль = 1.
+  // МЕНЯЙ ДАТУ (YYYY, MM-1, DD). Февраль = 1.
   const START_DATE = new Date(2022, 1, 14);
 
   function plural(n, one, few, many){
