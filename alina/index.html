@@ -28,19 +28,18 @@
     padding:16px;overflow:hidden;
   }
 
-  /* Сцена подстраивается под высоту экрана */
   .stage{
     position:relative;
     width:100%;
     max-width:420px;
     height:100%;
-    max-height: 850px; /* Чтобы на ПК не была бесконечной */
+    max-height: 850px;
     perspective:1200px;
     display:grid;
     place-items:center;
   }
 
-  /* ================= КОНВЕРТ (без изменений) ================= */
+  /* ================= КОНВЕРТ ================= */
   .envelope{
     position:absolute;
     inset:0;
@@ -48,13 +47,14 @@
     height:100%;
     cursor:pointer;
     transform-style:preserve-3d;
-    transition: transform .8s cubic-bezier(.4,0,.2,1), opacity .5s ease;
-    animation: floaty 6s ease-in-out infinite;
+    transition: transform .5s cubic-bezier(.4,0,.2,1), opacity .4s ease;
+    /* Усилили анимацию: теперь конверт заметно летает и наклоняется */
+    animation: floaty 3s ease-in-out infinite;
     border-radius: 24px;
   }
   @keyframes floaty{
-    0%,100%{transform:translateY(0) rotateZ(-.5deg)}
-    50%{transform:translateY(-8px) rotateZ(.5deg)}
+    0%,100%{transform:translateY(0) rotateZ(-2deg) scale(1)}
+    50%{transform:translateY(-15px) rotateZ(2deg) scale(1.02)}
   }
 
   .env-body{
@@ -78,7 +78,7 @@
     height:60%;
     transform-origin:top center;
     transform-style:preserve-3d;
-    transition:transform .7s cubic-bezier(.4,0,.2,1);
+    transition:transform .6s cubic-bezier(.4,0,.2,1); /* Ускорили открытие клапана */
     z-index:5;
   }
   .flap-front, .flap-back{
@@ -107,12 +107,13 @@
     color:#fff;
     box-shadow:0 8px 16px -4px rgba(169,79,104,.8), inset 0 -3px 6px rgba(0,0,0,.2);
     z-index:6;
-    animation:pulse 2.5s ease-in-out infinite;
-    transition:opacity .3s ease, transform .3s ease;
+    /* Печать теперь пульсирует быстрее и заметнее */
+    animation:pulse 1.5s ease-in-out infinite;
+    transition:opacity .2s ease, transform .2s ease;
   }
   @keyframes pulse{
     0%,100%{transform:translate(-50%,-50%) scale(1)}
-    50%{transform:translate(-50%,-50%) scale(1.05)}
+    50%{transform:translate(-50%,-50%) scale(1.15)}
   }
 
   .heart {
@@ -140,11 +141,12 @@
     font-size:clamp(24px,6vw,32px);
     color:var(--hint);
     z-index:3;
-    animation:wobble 2.5s ease-in-out infinite;
+    /* Текст тоже качается активнее */
+    animation:wobble 1.5s ease-in-out infinite;
   }
   @keyframes wobble{
-    0%,100%{transform:rotate(-2deg)}
-    50%{transform:rotate(2deg)}
+    0%,100%{transform:rotate(-4deg) scale(1)}
+    50%{transform:rotate(4deg) scale(1.05)}
   }
   .open-hint::after{ content:" ✦"; color:var(--accent); }
 
@@ -154,31 +156,30 @@
     inset:0;
     background:var(--paper);
     border-radius:24px;
-    /* Уменьшили отступы, чтобы фото было больше */
     padding:12px 12px 16px; 
     box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.8);
     opacity:0;
-    transform:translateY(30px) scale(.95);
+    /* Теперь открытка вылетает снизу с отскоком */
+    transform:translateY(100px) scale(.85);
     pointer-events:none;
-    transition:opacity .6s ease, transform .8s cubic-bezier(.2,.8,.2,1);
+    transition:opacity .4s ease, transform .6s cubic-bezier(.34,1.56,.64,1); /* Пружинистая анимация */
     overflow:hidden;
     z-index:2;
     display: flex;
     flex-direction: column;
   }
   .card::after{
-    content:"";position:absolute;inset:6px; /* Рамка теперь тоньше */
+    content:"";position:absolute;inset:6px;
     border:1px solid var(--border);border-radius:18px;pointer-events:none;
   }
   
-  /* ФОТО ЗАНИМАЕТ ВСЁ ДОСТУПНОЕ МЕСТО */
   .photo-wrapper {
-    flex: 1; /* Растягивается насколько может */
+    flex: 1;
     width: 100%;
     border-radius: 14px;
     overflow: hidden;
     background: #eee;
-    min-height: 0; /* Важно для Flexbox */
+    min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -186,16 +187,13 @@
   .photo{
     width:100%; 
     height:100%;
-    /* cover обрезает края, contain вписывает полностью */
-    /* Если фото строго вертикальное, cover будет смотреться лучше */
     object-fit: cover; 
     display:block;
   }
 
-  /* Текст сжат, чтобы не отнимать место у фото */
   .names{
     font-family:'Caveat',cursive;
-    font-size:clamp(24px,6vw,32px); /* Чуть уменьшили */
+    font-size:clamp(24px,6vw,32px);
     line-height:1;
     text-align:center;
     margin:10px 0 6px;
@@ -234,26 +232,31 @@
 
   /* ================= СОСТОЯНИЕ ОТКРЫТО ================= */
   .stage.opened .flap{ transform:rotateX(180deg); }
-  .stage.opened .seal{ opacity:0; transform:translate(-50%,-50%) scale(.5); animation:none; }
+  .stage.opened .seal{ opacity:0; transform:translate(-50%,-50%) scale(.2); animation:none; }
   .stage.opened .open-hint{ opacity:0; }
+  
   .stage.opened .envelope{
     animation:none;
-    transform:translateY(40px) scale(.9);
+    /* Конверт быстро улетает вниз и растворяется */
+    transform:translateY(80px) scale(.8) rotateX(20deg);
     opacity:0; pointer-events:none;
-    transition:transform .8s cubic-bezier(.2,.8,.2,1) .2s, opacity .4s ease .5s;
+    transition:transform .5s cubic-bezier(.4,0,1,1), opacity .4s ease .2s;
   }
+  
   .stage.opened .card{
     opacity:1; pointer-events:auto;
+    /* Открытка встает на место с пружинкой */
     transform:none;
-    transition:opacity .5s ease .6s, transform .7s cubic-bezier(.2,.8,.2,1) .6s;
+    transition:opacity .4s ease .2s, transform .6s cubic-bezier(.34,1.56,.64,1) .2s;
   }
 
-  .reveal{opacity:0; transform:translateY(10px); transition:opacity .5s ease, transform .5s ease}
+  /* Текст появляется быстрее и резче */
+  .reveal{opacity:0; transform:translateY(15px); transition:opacity .4s ease, transform .4s cubic-bezier(.34,1.56,.64,1)}
   .stage.opened .reveal{opacity:1; transform:none}
-  .stage.opened .r1{transition-delay:1.1s}
-  .stage.opened .r2{transition-delay:1.25s}
-  .stage.opened .r3{transition-delay:1.4s}
-  .stage.opened .r4{transition-delay:1.55s}
+  .stage.opened .r1{transition-delay:.5s}
+  .stage.opened .r2{transition-delay:.6s}
+  .stage.opened .r3{transition-delay:.7s}
+  .stage.opened .r4{transition-delay:.8s}
 
 </style>
 </head>
@@ -275,16 +278,15 @@
 
   <!-- ОТКРЫТКА -->
   <div class="card">
-    <!-- Фото теперь главный элемент -->
     <div class="photo-wrapper reveal r1">
       <img class="photo" src="index.JPG" alt="Фото">
     </div>
     
-    <h1 class="names reveal r2">Оскар <span>+</span> Алина</h1>
+    <h1 class="names reveal r2">Иван <span>+</span> Анна</h1>
     
     <div class="start reveal r3">
       <div class="start-label">начало нашей истории</div>
-      <div class="start-date">15 октября 2024</div>
+      <div class="start-date">14 февраля 2022</div>
       <div class="start-days">вместе уже <b id="days">…</b></div>
     </div>
     
@@ -303,7 +305,7 @@
   });
 
   // СЧЕТЧИК
-  const START_DATE = new Date(2024, 9, 15); // Февраль = 1
+  const START_DATE = new Date(2022, 1, 14); // Февраль = 1
 
   function plural(n) {
     const m10 = n % 10, m100 = n % 100;
